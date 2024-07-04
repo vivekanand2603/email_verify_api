@@ -1,43 +1,79 @@
-Here is the API documentation in table format:
+Sure! Here is a README file in table format for your Go application:
 
-### Lists API
+# Email Verification Service
 
-| HTTP Method | Endpoint                 | Description                     | Request Body                            | Response Body                 |
-|-------------|--------------------------|---------------------------------|-----------------------------------------|-------------------------------|
-| GET         | /lists                   | Get all lists                   | None                                    | List of all lists             |
-| POST        | /lists                   | Create a new list               | `{"name": "list_name"}`                 | Created list with ID          |
-| GET         | /lists/:id               | Get a list by ID                | None                                    | List with specified ID        |
-| DELETE      | /lists/:id               | Delete a list by ID             | None                                    | None                          |
-| GET         | /lists/:id/leads         | Get all leads in a list by ID   | None                                    | List of leads in the list     |
-| GET         | /lists/:id/leads/count   | Get lead count by list ID       | None                                    | Lead count                    |
-| GET         | /lists/:id/leads/count/email_verified | Get verified lead count by list ID | None                                    | Verified lead count           |
-| POST        | /lists/:id/queue         | Add a list to the queue         | None                                    | None                          |
-| POST        | /lists/:id/leads/csv     | Upload leads from CSV to a list | CSV file                                | None                          |
-| GET         | /lists/:id/leads/csv     | Download leads as CSV           | None                                    | CSV file                      |
+## Overview
 
-### Leads API
+This service provides APIs for managing email lists and leads, performing CRUD operations, and various counts related to email verification statuses. It also supports CSV file uploads and downloads for leads.
 
-| HTTP Method | Endpoint                 | Description                     | Request Body                            | Response Body                 |
-|-------------|--------------------------|---------------------------------|-----------------------------------------|-------------------------------|
-| GET         | /leads                   | Get all leads                   | None                                    | List of all leads             |
-| POST        | /leads                   | Create a new lead               | `{"email": "email", "list_id": "list_id"}` | Created lead with ID          |
-| GET         | /leads/:id               | Get a lead by ID                | None                                    | Lead with specified ID        |
-| DELETE      | /leads/:id               | Delete a lead by ID             | None                                    | None                          |
+## Routes
 
-### Queue Processing API
+### Lists
 
-| HTTP Method | Endpoint                 | Description                     | Request Body                            | Response Body                 |
-|-------------|--------------------------|---------------------------------|-----------------------------------------|-------------------------------|
-| GET         | /processQueue            | Process the lead queue          | None                                    | None                          |
+| Method | Endpoint                  | Description                                    |
+|--------|---------------------------|------------------------------------------------|
+| GET    | /lists                    | Retrieve all lists.                            |
+| POST   | /lists                    | Create a new list.                             |
+| GET    | /lists/:id                | Retrieve a list by ID.                         |
+| DELETE | /lists/:id                | Delete a list by ID.                           |
 
-### Common Responses
+### Leads
 
-| Status Code | Description                     |
-|-------------|---------------------------------|
-| 200         | OK                              |
-| 201         | Created                         |
-| 204         | No Content                      |
-| 400         | Bad Request                     |
-| 500         | Internal Server Error           |
+| Method | Endpoint                      | Description                                            |
+|--------|-------------------------------|--------------------------------------------------------|
+| GET    | /leads                        | Retrieve all leads.                                    |
+| POST   | /leads                        | Create a new lead.                                     |
+| GET    | /leads/:id                    | Retrieve a lead by ID.                                 |
+| DELETE | /leads/:id                    | Delete a lead by ID.                                   |
+| GET    | /lists/:id/leads              | Retrieve all leads in a list.                          |
+| GET    | /lists/:id/leads/count        | Count leads in a list.                                 |
+| GET    | /lists/:id/leads/count/email_verified | Count email verified leads in a list.            |
+| GET    | /lists/:id/leads/count/valid_emails   | Count valid email leads in a list.               |
+| GET    | /lists/:id/leads/count/invalid_emails | Count invalid email leads in a list.             |
+| GET    | /lists/:id/leads/count/unknown_emails | Count unknown email leads in a list.             |
+| GET    | /count_all                   | Count all emails with a specific status.               |
+| POST   | /lists/:id/queue              | Add a list to the queue.                               |
+| GET    | /lists/:id/queue              | Check if a list is in the queue.                       |
+| DELETE | /lists/:id/queue              | Remove a list from the queue.                          |
+| GET    | /processQueue                 | Process the queue.                                     |
+| POST   | /lists/:id/leads/csv          | Upload leads from a CSV file to a list.                |
+| GET    | /lists/:id/leads/csv          | Download leads of a list as a CSV file.                |
 
-This table provides an overview of the available API endpoints, their HTTP methods, descriptions, request and response bodies, and common response status codes.
+## Installation
+
+1. Clone the repository.
+2. Install dependencies using `go mod tidy`.
+3. Run the application using `go run main.go`.
+
+## Usage
+
+The application runs on port 30001. Use an API client like Postman to interact with the endpoints.
+
+## Middleware
+
+- **CORS**: Allows all origins and supports various HTTP methods.
+- **Content-Type**: Sets the response content type to JSON.
+
+## Database
+
+This application uses MongoDB. Update the connection string in the `mongo.Connect` function call.
+
+```go
+client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://<username>:<password>@cluster0.isymvpw.mongodb.net/email_verify2"))
+```
+
+## Handlers
+
+Handlers for each route are defined within the `main` function, interacting with MongoDB to perform CRUD operations and more.
+
+## Contributing
+
+Feel free to fork this repository and contribute by submitting a pull request.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+This table provides a clear and organized overview of your application's endpoints and functionalities, making it easier for developers to understand and use your API.

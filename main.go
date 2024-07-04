@@ -343,5 +343,5 @@ func main() {
 	})
 	// enable cors and content type json from headers for all routes
 	wrappedRouter := enableCORSAndJSONContentType(router)
-	log.Fatal(http.ListenAndServe(":30003", wrappedRouter))
+	log.Fatal(http.ListenAndServe(":30001", wrappedRouter))
 }
