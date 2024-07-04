@@ -52,12 +52,38 @@ func GetLeads(client *mongo.Client, listID primitive.ObjectID) ([]Lead, error) {
 func GetLeadsCount(client *mongo.Client, listID primitive.ObjectID) (int64, error) {
 	collection := client.Database("email_verify").Collection("leads")
 	return collection.CountDocuments(context.TODO(), bson.M{"list_id": listID})
-
 }
 
 func CountEmailVerified(client *mongo.Client, listID primitive.ObjectID) (int64, error) {
 	collection := client.Database("email_verify").Collection("leads")
 	return collection.CountDocuments(context.TODO(), bson.M{"list_id": listID, "email_verified": true})
+}
+
+func CountValidEmails(client *mongo.Client, listID primitive.ObjectID) (int64, error) {
+	collection := client.Database("email_verify").Collection("leads")
+	return collection.CountDocuments(context.TODO(), bson.M{"list_id": listID, "email_is_valid": "yes"})
+}
+
+func CountInvalidEmails(client *mongo.Client, listID primitive.ObjectID) (int64, error) {
+	collection := client.Database("email_verify").Collection("leads")
+	return collection.CountDocuments(context.TODO(), bson.M{"list_id": listID, "email_is_valid": "no"})
+}
+
+func CountUnknownEmails(client *mongo.Client, listID primitive.ObjectID) (int64, error) {
+	collection := client.Database("email_verify").Collection("leads")
+	return collection.CountDocuments(context.TODO(), bson.M{"list_id": listID, "email_is_valid": "unknown"})
+}
+
+// count for all emails no matter the list
+
+func CountAllEmails(client *mongo.Client, emailIsValid string) (int64, error) {
+	// emailIsValid can be "yes", "no", or "unknown" or empty string to count all emails
+	collection := client.Database("email_verify").Collection("leads")
+	if emailIsValid == "" {
+		return collection.CountDocuments(context.TODO(), bson.M{})
+	} else {
+		return collection.CountDocuments(context.TODO(), bson.M{"email_is_valid": emailIsValid})
+	}
 }
 
 func DeleteLead(client *mongo.Client, id primitive.ObjectID) error {

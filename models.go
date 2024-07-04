@@ -23,4 +23,5 @@ type VerificationQueue struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	Email  string             `bson:"email"`
 	LeadID primitive.ObjectID `bson:"lead_id"`
+	ListID primitive.ObjectID `bson:"list_id"`
 }

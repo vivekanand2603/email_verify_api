@@ -27,7 +27,7 @@ func enableCORSAndJSONContentType(next http.Handler) http.Handler {
 }
 
 func main() {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://vivek:Ylxp71FcizHu4nmK@cluster0.isymvpw.mongodb.net/email_verify"))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://vivek:Ylxp71FcizHu4nmK@cluster0.isymvpw.mongodb.net/email_verify2"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -196,7 +196,65 @@ func main() {
 		json.NewEncoder(w).Encode(count)
 	})
 
-	// AddListToQueue
+	// get leads count by list id and email_is_valid = yes
+
+	router.GET("/lists/:id/leads/count/valid_emails", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		count, err := CountValidEmails(client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(count)
+	})
+
+	// get leads count by list id and email_is_valid = no
+
+	router.GET("/lists/:id/leads/count/invalid_emails", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		count, err := CountInvalidEmails(client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(count)
+	})
+
+	// get leads count by list id and email_is_valid = unknown
+
+	router.GET("/lists/:id/leads/count/unknown_emails", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		count, err := CountUnknownEmails(client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(count)
+	})
+
+	// count for all emails no matter the list
+
+	router.GET("/count_all", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		emailIsValid := r.URL.Query().Get("email_is_valid")
+		count, err := CountAllEmails(client, emailIsValid)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(count)
+	})
 
 	router.POST("/lists/:id/queue", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
@@ -205,6 +263,42 @@ func main() {
 			return
 		}
 		err = AddListToQueue(client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	// is list in queue
+
+	router.GET("/lists/:id/queue", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		inQueue, err := IsListInQueue(client, id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		JsonResponse := struct {
+			InQueue bool `json:"in_queue"`
+		}{
+			InQueue: inQueue}
+		json.NewEncoder(w).Encode(JsonResponse)
+	})
+
+	// remove list from queue
+
+	router.DELETE("/lists/:id/queue", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		id, err := primitive.ObjectIDFromHex(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err = RemoveListFromQueue(client, id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

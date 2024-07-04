@@ -23,7 +23,7 @@ func AddListToQueue(client *mongo.Client, listID primitive.ObjectID) error {
 	for cursor.Next(context.Background()) {
 		var lead Lead
 		cursor.Decode(&lead)
-		queue = append(queue, VerificationQueue{Email: lead.Email, LeadID: lead.ID})
+		queue = append(queue, VerificationQueue{Email: lead.Email, LeadID: lead.ID, ListID: lead.ListID})
 	}
 
 	// insert the leads into the queue
@@ -33,6 +33,19 @@ func AddListToQueue(client *mongo.Client, listID primitive.ObjectID) error {
 	}
 	_, err = queueCollection.InsertMany(context.TODO(), queueDocuments)
 	return err
+}
+
+func IsListInQueue(client *mongo.Client, listID primitive.ObjectID) (bool, error) {
+	collection := client.Database("email_verify").Collection("verification_queue")
+	count, err := collection.CountDocuments(context.TODO(), bson.M{"list_id": listID})
+	if err != nil {
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 func RemoveListFromQueue(client *mongo.Client, listID primitive.ObjectID) error {
