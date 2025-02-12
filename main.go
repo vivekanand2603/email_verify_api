@@ -27,7 +27,7 @@ func enableCORSAndJSONContentType(next http.Handler) http.Handler {
 }
 
 func main() {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb+srv://vivek:Ylxp71FcizHu4nmK@cluster0.isymvpw.mongodb.net/email_verify2"))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017/email"))
 	if err != nil {
 		log.Fatal(err)
 	}
